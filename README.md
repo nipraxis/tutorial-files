@@ -42,3 +42,31 @@ At the moment, of the data files in `psych-214-fall-2016` repository, we have th
 103K Mar  1 11:34 ds114_sub009_highres_brain_mask.nii.gz
  93K Mar  1 11:34 mni_icbm152_t1_tal_nlin_asym_09a_mask.nii.gz
 ```
+
+## Sketch
+
+Stuff I just did in IPython:
+
+```python
+import numpy as np
+import nibabel as nib
+
+img = nib.load('ds114_sub009_t2r1.nii')
+# No scaling for this image.
+print(img.header.slope, img.header.inter)
+
+# Make mean image.
+data = np.array(img.dataobj).mean(axis=-1)
+mean_data = np.array(img.dataobj).mean(axis=-1)
+nib.save(nib.Nifti1Image(mean_data, None, img.header), 'mean_ds114_func.nii')
+
+# Make mask with dipy_median_otsu --save_masked mean_ds114_func.nii
+mask = nib.load('dwi_masked.nii.gz')
+mask_data = np.array(mask.dataobj)
+masked_data = data * mask_data[..., None]
+nib.save(
+    nib.Nifti1Image(masked_data, None, img.header),
+    'masked_ds114_sub009_t2r1.nii')
+
+# Maybe inspect in https://github.com/rordenlab/MRIcroGL
+```
